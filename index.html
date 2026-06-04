@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cut Optimizer</title>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Cut Optimizer</h1>
+        <p>Minimize waste when cutting lumber and sheet goods.</p>
+      </header>
+
+      <section class="card">
+        <h2>Settings</h2>
+        <label>
+          Blade kerf (inches):
+          <input id="kerf" type="number" step="0.0625" min="0" max="1" value="0.125" />
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Stock</h2>
+        <div class="input-row">
+          <input id="stock-label" type="text" placeholder="Label (e.g. 4x8 Plywood)" />
+          <input id="stock-width" type="number" placeholder='Width "' min="0" step="0.125" />
+          <input id="stock-length" type="number" placeholder='Length "' min="0" step="0.125" />
+          <input id="stock-qty" type="number" placeholder="Qty" min="1" value="1" style="width:60px" />
+          <button id="add-stock">Add</button>
+        </div>
+        <table id="stock-table">
+          <thead><tr><th>Label</th><th>Width</th><th>Length</th><th>Qty</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Desired Cuts</h2>
+        <div class="input-row">
+          <input id="cut-label" type="text" placeholder="Label (e.g. Shelf)" />
+          <input id="cut-width" type="number" placeholder='Width "' min="0" step="0.125" />
+          <input id="cut-length" type="number" placeholder='Length "' min="0" step="0.125" />
+          <input id="cut-qty" type="number" placeholder="Qty" min="1" value="1" style="width:60px" />
+          <button id="add-cut">Add</button>
+        </div>
+        <table id="cut-table">
+          <thead><tr><th>Label</th><th>Width</th><th>Length</th><th>Qty</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <div class="optimize-row">
+        <button id="optimize-btn" class="primary">Optimize Cuts</button>
+      </div>
+
+      <section id="results">
+        <p class="hint">Add stock and cuts above, then click Optimize.</p>
+      </section>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
