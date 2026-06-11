@@ -24,8 +24,12 @@
         <h2>Stock</h2>
         <div class="input-row">
           <input id="stock-label" type="text" placeholder="Label (e.g. 4x8 Plywood)" />
-          <input id="stock-width" type="number" placeholder='Width "' min="0" step="0.125" />
-          <input id="stock-length" type="number" placeholder='Length "' min="0" step="0.125" />
+          <input id="stock-width" type="number" placeholder="Width" min="0" step="0.125" />
+          <input id="stock-length" type="number" placeholder="Length" min="0" step="0.125" />
+          <select id="stock-unit">
+            <option value="in" selected>inches</option>
+            <option value="ft">feet</option>
+          </select>
           <input id="stock-qty" type="number" placeholder="Qty" min="1" value="1" style="width:60px" />
           <button id="add-stock">Add</button>
         </div>
@@ -39,8 +43,12 @@
         <h2>Desired Cuts</h2>
         <div class="input-row">
           <input id="cut-label" type="text" placeholder="Label (e.g. Shelf)" />
-          <input id="cut-width" type="number" placeholder='Width "' min="0" step="0.125" />
-          <input id="cut-length" type="number" placeholder='Length "' min="0" step="0.125" />
+          <input id="cut-width" type="number" placeholder="Width" min="0" step="0.125" />
+          <input id="cut-length" type="number" placeholder="Length" min="0" step="0.125" />
+          <select id="cut-unit">
+            <option value="in" selected>inches</option>
+            <option value="ft">feet</option>
+          </select>
           <input id="cut-qty" type="number" placeholder="Qty" min="1" value="1" style="width:60px" />
           <button id="add-cut">Add</button>
         </div>

@@ -1,4 +1,5 @@
-import { CutPlan } from './types'
+import type { CutPlan } from './types'
+import { fromInches } from './format'
 
 const COLORS = [
   '#4E9AF1', '#F1A44E', '#4EF17A', '#F14E7A', '#A44EF1',
@@ -42,7 +43,7 @@ export function renderPlan(canvas: HTMLCanvasElement, plan: CutPlan, scale: numb
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     const label = placement.rotated ? `${placement.cut.label} (R)` : placement.cut.label
-    const dims = `${placement.cut.width}" × ${placement.cut.length}"`
+    const dims = `${fromInches(placement.cut.width, placement.cut.unit)} × ${fromInches(placement.cut.length, placement.cut.unit)}`
     ctx.fillText(label, x + w / 2, y + h / 2 - 7)
     ctx.font = `${Math.min(10, w / 8)}px sans-serif`
     ctx.fillText(dims, x + w / 2, y + h / 2 + 7)
@@ -54,7 +55,7 @@ export function renderPlan(canvas: HTMLCanvasElement, plan: CutPlan, scale: numb
   ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
   ctx.fillText(
-    `${stock.label} — ${stock.width}" × ${stock.length}" (${plan.wastePercent}% waste)`,
+    `${stock.label} — ${fromInches(stock.width, stock.unit)} × ${fromInches(stock.length, stock.unit)} (${plan.wastePercent}% waste)`,
     canvas.width / 2,
     padding + stock.length * scale + 4
   )

@@ -1,4 +1,4 @@
-import { StockPiece, DesiredCut, CutPlan, CutPlacement, OptimizeResult } from './types'
+import type { StockPiece, DesiredCut, CutPlan, CutPlacement, OptimizeResult } from './types'
 
 /**
  * Simple guillotine bin-packing algorithm.
