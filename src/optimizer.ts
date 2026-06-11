@@ -16,8 +16,10 @@ export function optimize(
     Array.from({ length: c.quantity }, (_, i) => ({ ...c, id: `${c.id}-${i}` }))
   )
 
-  // Sort cuts largest first (better packing)
-  remaining.sort((a, b) => (b.width * b.length) - (a.width * a.length))
+  // Sort cuts by area ascending. We iterate this list back-to-front below (so we
+  // can splice placed items out safely), which means the LARGEST piece is placed
+  // first — the standard heuristic for better packing.
+  remaining.sort((a, b) => (a.width * a.length) - (b.width * b.length))
 
   // Expand stock by quantity
   const stockSheets = stock.flatMap(s =>

@@ -1,9 +1,20 @@
 import type { CutPlan } from './types'
 import { fromInches } from './format'
 
+// Theme colors (match the site's dark palette)
+const THEME = {
+  board: '#1a1e2a',   // --bg3, shown as the bare board / waste area
+  border: '#22d3ee',  // --cyan accent
+  pieceBorder: '#0d0f14',
+  pieceText: '#0d0f14',
+  label: '#5a6478',   // --muted
+  font: "'JetBrains Mono', monospace",
+}
+
+// Bright, distinct piece colors that read well on the dark board
 const COLORS = [
-  '#4E9AF1', '#F1A44E', '#4EF17A', '#F14E7A', '#A44EF1',
-  '#F1E84E', '#4EF1E8', '#F16B4E', '#8AF14E', '#4E6BF1',
+  '#22d3ee', '#4ade80', '#38bdf8', '#fbbf24', '#c084fc',
+  '#f472b6', '#a3e635', '#fb923c', '#2dd4bf', '#818cf8',
 ]
 
 export function renderPlan(canvas: HTMLCanvasElement, plan: CutPlan, scale: number = 4): void {
@@ -16,10 +27,10 @@ export function renderPlan(canvas: HTMLCanvasElement, plan: CutPlan, scale: numb
   const ctx = canvas.getContext('2d')!
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  // Stock background
-  ctx.fillStyle = '#f5e6c8'
+  // Stock background (bare board — what shows through is waste)
+  ctx.fillStyle = THEME.board
   ctx.fillRect(padding, padding, stock.width * scale, stock.length * scale)
-  ctx.strokeStyle = '#8B6914'
+  ctx.strokeStyle = THEME.border
   ctx.lineWidth = 2
   ctx.strokeRect(padding, padding, stock.width * scale, stock.length * scale)
 
@@ -31,27 +42,27 @@ export function renderPlan(canvas: HTMLCanvasElement, plan: CutPlan, scale: numb
     const x = padding + placement.x * scale
     const y = padding + placement.y * scale
 
-    ctx.fillStyle = color + 'CC'
+    ctx.fillStyle = color + 'E6'
     ctx.fillRect(x, y, w, h)
-    ctx.strokeStyle = '#333'
+    ctx.strokeStyle = THEME.pieceBorder
     ctx.lineWidth = 1
     ctx.strokeRect(x, y, w, h)
 
     // Label
-    ctx.fillStyle = '#111'
-    ctx.font = `bold ${Math.min(12, w / 6)}px sans-serif`
+    ctx.fillStyle = THEME.pieceText
+    ctx.font = `bold ${Math.min(12, w / 6)}px ${THEME.font}`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     const label = placement.rotated ? `${placement.cut.label} (R)` : placement.cut.label
     const dims = `${fromInches(placement.cut.width, placement.cut.unit)} × ${fromInches(placement.cut.length, placement.cut.unit)}`
     ctx.fillText(label, x + w / 2, y + h / 2 - 7)
-    ctx.font = `${Math.min(10, w / 8)}px sans-serif`
+    ctx.font = `${Math.min(10, w / 8)}px ${THEME.font}`
     ctx.fillText(dims, x + w / 2, y + h / 2 + 7)
   })
 
   // Stock label below
-  ctx.fillStyle = '#555'
-  ctx.font = '11px sans-serif'
+  ctx.fillStyle = THEME.label
+  ctx.font = `11px ${THEME.font}`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
   ctx.fillText(
