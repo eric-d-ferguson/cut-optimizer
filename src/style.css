@@ -104,6 +104,8 @@ select {
   button.primary { width: 100%; }
   .optimize-row { display: block; }
   th, td { padding: 0.35rem 0.4rem; }
+  .share-bar button { flex: 1 1 calc(50% - 0.5rem); }
+  .share-label { flex: 1 1 100%; }
 }
 
 button {
@@ -175,6 +177,30 @@ th { color: var(--accent); font-weight: 600; }
 .cut-list li::before { content: '› '; color: var(--green); }
 
 .summary { color: var(--accent); font-weight: 600; }
+
+.share-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.share-label { color: var(--muted); font-size: 0.85rem; }
+.share-bar button { font-size: 0.8rem; }
+
+.app-footer {
+  text-align: center;
+  padding-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.app-footer a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--border);
+  padding-bottom: 1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.app-footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
 .hint { color: var(--muted); text-align: center; padding: 2rem; }
 .warn {

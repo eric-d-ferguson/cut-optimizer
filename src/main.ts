@@ -2,6 +2,7 @@ import './style.css'
 import type { StockPiece, DesiredCut, Unit } from './types'
 import { optimize } from './optimizer'
 import { renderPlan } from './renderer'
+import { renderShareBar } from './share'
 import { toFraction, fromInches } from './format'
 
 let stockList: StockPiece[] = []
@@ -59,6 +60,11 @@ function runOptimizer() {
   summary.className = 'summary'
   summary.textContent = `${result.plans.length} board(s) used · ${kerf}" kerf`
   resultsEl.appendChild(summary)
+
+  // Share the optimized cut list (copy / email / Google Doc)
+  if (result.plans.length > 0) {
+    resultsEl.appendChild(renderShareBar(result, kerf))
+  }
 
   result.plans.forEach((plan, idx) => {
     const wrapper = document.createElement('div')
@@ -143,3 +149,26 @@ document.addEventListener('click', (e) => {
 })
 
 document.getElementById('optimize-btn')!.addEventListener('click', runOptimizer)
+
+// Wire the footer link to a GitHub new-issue form with a light template.
+// Falls back to the plain issues page (set in the HTML) if JS doesn't run.
+const ISSUE_BODY = [
+  '### What were you doing?',
+  '',
+  '',
+  '### What did you expect?',
+  '',
+  '',
+  '### What happened instead?',
+  '',
+  '',
+  '---',
+  '_Filed from the Cut Optimizer app._',
+].join('\n')
+
+const reportLink = document.getElementById('report-issue') as HTMLAnchorElement | null
+if (reportLink) {
+  reportLink.href =
+    'https://github.com/eric-d-ferguson/cut-optimizer/issues/new'
+    + `?body=${encodeURIComponent(ISSUE_BODY)}`
+}
