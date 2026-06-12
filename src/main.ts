@@ -168,7 +168,10 @@ const ISSUE_BODY = [
 
 const reportLink = document.getElementById('report-issue') as HTMLAnchorElement | null
 if (reportLink) {
+  const params = new URLSearchParams({
+    assignees: 'eric-d-ferguson',  // auto-assign new issues to the repo owner
+    body: ISSUE_BODY,
+  })
   reportLink.href =
-    'https://github.com/eric-d-ferguson/cut-optimizer/issues/new'
-    + `?body=${encodeURIComponent(ISSUE_BODY)}`
+    `https://github.com/eric-d-ferguson/cut-optimizer/issues/new?${params}`
 }
