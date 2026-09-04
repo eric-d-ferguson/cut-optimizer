@@ -29,11 +29,11 @@ export function buildShareText(result: OptimizeResult, kerf: number): string {
     lines.push(
       `Board #${idx + 1} — ${stock.label} (${fromInches(stock.width, stock.unit)} × ${fromInches(stock.length, stock.unit)}) · ${plan.wastePercent}% waste`
     )
-    plan.placements.forEach(p => {
+    plan.placements.forEach((p, i) => {
       const orient = p.rotated ? ' (rotated)' : ''
       const w = fromInches(p.cut.width, p.cut.unit)
       const l = fromInches(p.cut.length, p.cut.unit)
-      lines.push(`  - ${p.cut.label}: ${w} × ${l}${orient} — at (${toFraction(p.x)}", ${toFraction(p.y)}")`)
+      lines.push(`  ${i + 1}. ${p.cut.label}: ${w} × ${l}${orient} — at (${toFraction(p.x)}", ${toFraction(p.y)}")`)
     })
     lines.push('')
   })

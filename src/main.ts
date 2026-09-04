@@ -66,6 +66,14 @@ function runOptimizer() {
     resultsEl.appendChild(renderShareBar(result, kerf))
   }
 
+  // Let the diagrams use the full width of the results column. For long stock
+  // like a 2x4 that directly sets how thick — and how legible — the board is.
+  const CARD_CHROME = 34  // .plan-card padding + border
+  const diagramBox = {
+    maxWidth: resultsEl.clientWidth > 0 ? Math.max(280, resultsEl.clientWidth - CARD_CHROME) : 760,
+    maxHeight: 520,
+  }
+
   result.plans.forEach((plan, idx) => {
     const wrapper = document.createElement('div')
     wrapper.className = 'plan-card'
@@ -74,22 +82,19 @@ function runOptimizer() {
     heading.textContent = `Board #${idx + 1} — ${plan.stock.label} (${fromInches(plan.stock.width, plan.stock.unit)} × ${fromInches(plan.stock.length, plan.stock.unit)}) · ${plan.wastePercent}% waste`
     wrapper.appendChild(heading)
 
-    // Scale the diagram to fill a target area regardless of orientation
-    const targetW = 560, targetH = 460
-    const scale = Math.min(targetW / plan.stock.width, targetH / plan.stock.length)
     const canvas = document.createElement('canvas')
-    renderPlan(canvas, plan, scale)
+    renderPlan(canvas, plan, diagramBox)
     wrapper.appendChild(canvas)
 
     // Text cut list for this board
     const list = document.createElement('ul')
     list.className = 'cut-list'
-    plan.placements.forEach(p => {
+    plan.placements.forEach((p, i) => {
       const li = document.createElement('li')
       const orient = p.rotated ? ' (rotated)' : ''
       const w = fromInches(p.cut.width, p.cut.unit)
       const l = fromInches(p.cut.length, p.cut.unit)
-      li.textContent = `${p.cut.label}: ${w} × ${l}${orient} — at (${toFraction(p.x)}", ${toFraction(p.y)}")`
+      li.textContent = `${i + 1}. ${p.cut.label}: ${w} × ${l}${orient} — at (${toFraction(p.x)}", ${toFraction(p.y)}")`
       list.appendChild(li)
     })
     wrapper.appendChild(list)

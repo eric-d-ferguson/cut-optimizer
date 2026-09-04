@@ -63,6 +63,10 @@ export function optimize(
 
 interface FreeRect { x: number; y: number; w: number; h: number }
 
+// Slack for floating-point dust, so a piece that mathematically fits exactly
+// (a 3.5" crosscut on a 3.5"-wide 2x4) isn't rejected by a rounding error.
+const EPS = 1e-9
+
 function tryPlace(cut: DesiredCut, freeRects: FreeRect[], kerf: number): CutPlacement | null {
   const orientations = [
     { w: cut.width, h: cut.length, rotated: false },
@@ -71,17 +75,20 @@ function tryPlace(cut: DesiredCut, freeRects: FreeRect[], kerf: number): CutPlac
 
   for (const rect of freeRects) {
     for (const { w, h, rotated } of orientations) {
-      if (w + kerf <= rect.w && h + kerf <= rect.h) {
+      // The piece only has to fit the free space. Kerf is material the blade
+      // eats *between* cuts, so it comes off the leftover below — never off the
+      // piece itself, and never against the edge of the stock.
+      if (w <= rect.w + EPS && h <= rect.h + EPS) {
         // Place it — split remaining free space
         const placement: CutPlacement = { cut, x: rect.x, y: rect.y, rotated }
 
-        // Guillotine split: right and bottom
+        // Guillotine split: right and bottom, each one kerf away from the piece
         const rightRect = { x: rect.x + w + kerf, y: rect.y, w: rect.w - w - kerf, h }
         const bottomRect = { x: rect.x, y: rect.y + h + kerf, w: rect.w, h: rect.h - h - kerf }
 
         freeRects.splice(freeRects.indexOf(rect), 1)
-        if (rightRect.w > 0 && rightRect.h > 0) freeRects.push(rightRect)
-        if (bottomRect.w > 0 && bottomRect.h > 0) freeRects.push(bottomRect)
+        if (rightRect.w > EPS && rightRect.h > EPS) freeRects.push(rightRect)
+        if (bottomRect.w > EPS && bottomRect.h > EPS) freeRects.push(bottomRect)
 
         return placement
       }
