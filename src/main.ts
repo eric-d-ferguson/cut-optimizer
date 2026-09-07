@@ -3,7 +3,7 @@ import type { StockPiece, DesiredCut, Unit } from './types'
 import { optimize } from './optimizer'
 import { renderPlan } from './renderer'
 import { renderShareBar } from './share'
-import { toFraction, fromInches } from './format'
+import { toFraction, fromInches, parseMeasurement } from './format'
 
 let stockList: StockPiece[] = []
 let cutList: DesiredCut[] = []
@@ -110,34 +110,87 @@ function runOptimizer() {
   }
 }
 
+function showError(prefix: string, message: string) {
+  document.getElementById(`${prefix}-error`)!.textContent = message
+}
+
 const kerfInput = document.getElementById('kerf') as HTMLInputElement
 kerfInput.value = String(kerf)
-kerfInput.addEventListener('change', () => { kerf = parseFloat(kerfInput.value) || 0.125 })
+kerfInput.addEventListener('change', () => {
+  const parsed = parseMeasurement(kerfInput.value)
+  if (isNaN(parsed) || parsed < 0 || parsed > 1) {
+    // Keep the last good kerf rather than silently snapping to the default,
+    // which would quietly change every measurement in the plan.
+    showError('kerf', `Can't read "${kerfInput.value}" as a blade width — keeping ${kerf}".`)
+    kerfInput.value = String(kerf)
+    return
+  }
+  showError('kerf', '')
+  kerf = parsed
+})
+
+interface RowInput {
+  label: string
+  width: number
+  length: number
+  unit: Unit
+  quantity: number
+}
+
+/**
+ * Read one stock/cut entry row. Returns the parsed values, or a message saying
+ * what needs fixing — the Add buttons used to `return` silently on any bad
+ * field, which made a mistyped dimension look like a dead button.
+ */
+function readRow(prefix: 'stock' | 'cut'): RowInput | string {
+  const field = (name: string) =>
+    document.getElementById(`${prefix}-${name}`) as HTMLInputElement
+  const noun = prefix === 'stock' ? 'stock' : 'cut'
+
+  const label = field('label').value.trim()
+  if (!label) return `Give this ${noun} a label first.`
+
+  const dims: Record<string, number> = {}
+  for (const name of ['width', 'length']) {
+    const raw = field(name).value.trim()
+    if (!raw) return `Enter a ${name}.`
+    const value = parseMeasurement(raw)
+    if (isNaN(value)) return `Can't read "${raw}" as a ${name}. Try 22.5, 22 1/2, or 1/2.`
+    if (value <= 0) return `The ${name} has to be more than zero.`
+    dims[name] = value
+  }
+
+  // A blank quantity reads as "just the one" rather than as a mistake.
+  const qtyRaw = field('qty').value.trim()
+  const quantity = qtyRaw === '' ? 1 : Number(qtyRaw)
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    return `Quantity should be a whole number, 1 or more.`
+  }
+
+  const unit = (document.getElementById(`${prefix}-unit`) as HTMLSelectElement).value as Unit
+  return { label, width: dims.width, length: dims.length, unit, quantity }
+}
 
 document.getElementById('add-stock')!.addEventListener('click', () => {
-  const label = (document.getElementById('stock-label') as HTMLInputElement).value.trim()
-  const width = parseFloat((document.getElementById('stock-width') as HTMLInputElement).value)
-  const length = parseFloat((document.getElementById('stock-length') as HTMLInputElement).value)
-  const unit = (document.getElementById('stock-unit') as HTMLSelectElement).value as Unit
-  const quantity = parseInt((document.getElementById('stock-qty') as HTMLInputElement).value)
-  if (!label || isNaN(width) || isNaN(length) || isNaN(quantity)) return
+  const row = readRow('stock')
+  if (typeof row === 'string') return showError('stock', row)
+  showError('stock', '')
   stockList.push({
-    id: generateId(), label, type: 'sheet', unit,
-    width: toInches(width, unit), length: toInches(length, unit), quantity,
+    id: generateId(), label: row.label, type: 'sheet', unit: row.unit,
+    width: toInches(row.width, row.unit), length: toInches(row.length, row.unit),
+    quantity: row.quantity,
   })
   renderStockTable()
 })
 
 document.getElementById('add-cut')!.addEventListener('click', () => {
-  const label = (document.getElementById('cut-label') as HTMLInputElement).value.trim()
-  const width = parseFloat((document.getElementById('cut-width') as HTMLInputElement).value)
-  const length = parseFloat((document.getElementById('cut-length') as HTMLInputElement).value)
-  const unit = (document.getElementById('cut-unit') as HTMLSelectElement).value as Unit
-  const quantity = parseInt((document.getElementById('cut-qty') as HTMLInputElement).value)
-  if (!label || isNaN(width) || isNaN(length) || isNaN(quantity)) return
+  const row = readRow('cut')
+  if (typeof row === 'string') return showError('cut', row)
+  showError('cut', '')
   cutList.push({
-    id: generateId(), label, unit,
-    width: toInches(width, unit), length: toInches(length, unit), quantity,
+    id: generateId(), label: row.label, unit: row.unit,
+    width: toInches(row.width, row.unit), length: toInches(row.length, row.unit),
+    quantity: row.quantity,
   })
   renderCutTable()
 })

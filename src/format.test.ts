@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { toFraction, fromInches } from './format'
+import { toFraction, fromInches, parseMeasurement } from './format'
 
 describe('toFraction', () => {
   it('renders whole numbers without a fraction', () => {
@@ -32,5 +32,40 @@ describe('fromInches', () => {
   it('converts to feet with a prime symbol', () => {
     expect(fromInches(96, 'ft')).toBe("8'")     // 96" = 8'
     expect(fromInches(18, 'ft')).toBe("1 1/2'") // 18" = 1.5'
+  })
+})
+
+describe('parseMeasurement', () => {
+  it('reads decimals and whole numbers', () => {
+    expect(parseMeasurement('22.5')).toBe(22.5)
+    expect(parseMeasurement('47')).toBe(47)
+    expect(parseMeasurement('  96  ')).toBe(96)
+  })
+
+  it('reads the fractions the app itself prints', () => {
+    expect(parseMeasurement('22 1/2')).toBe(22.5)
+    expect(parseMeasurement('22-1/2')).toBe(22.5)
+    expect(parseMeasurement('1/2')).toBe(0.5)
+    expect(parseMeasurement('3 1/16')).toBeCloseTo(3.0625)
+    expect(parseMeasurement('7/8')).toBe(0.875)
+  })
+
+  it('round-trips its own output', () => {
+    for (const v of [0.0625, 0.5, 3.5, 22.5, 47.9375, 96]) {
+      expect(parseMeasurement(toFraction(v))).toBeCloseTo(v)
+    }
+  })
+
+  it('tolerates unit marks, which the dropdown overrides anyway', () => {
+    expect(parseMeasurement('47"')).toBe(47)
+    expect(parseMeasurement("4'")).toBe(4)
+    expect(parseMeasurement('22 1/2 in')).toBe(22.5)
+    expect(parseMeasurement('8 ft')).toBe(8)
+  })
+
+  it('rejects anything that is not a measurement', () => {
+    for (const bad of ['', '   ', 'abc', '1/0', '--', '1/2/3', '12..5', '-5', '1 2 3']) {
+      expect(parseMeasurement(bad)).toBeNaN()
+    }
   })
 })
