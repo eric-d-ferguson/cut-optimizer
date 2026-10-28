@@ -1,20 +1,31 @@
 import type { CutPlan, CutPlacement } from './types'
 import { fromInches } from './format'
 
-// Theme colors (match the site's dark palette)
-const THEME = {
-  board: '#1a1e2a',   // --bg3, shown as the bare board / waste area
-  border: '#22d3ee',  // --cyan accent
-  pieceBorder: '#0d0f14',
-  pieceText: '#0d0f14',
-  label: '#5a6478',   // --muted
-  font: "'JetBrains Mono', monospace",
+// Canvas can't read CSS variables directly, so these mirror style.css.
+// board is the bare stock — what shows through is waste.
+const LIGHT = {
+  board: '#f3f3f1',
+  border: '#2a5bb8',
+  pieceBorder: '#ffffff',
+  pieceText: '#0f1215',
+  label: '#626a75',
 }
+const DARK = {
+  board: '#121417',
+  border: '#84a9f0',
+  pieceBorder: '#1a1d21',
+  pieceText: '#0f1215',
+  label: '#9199a4',
+}
+const FONT = "'Inter', system-ui, sans-serif"
 
-// Bright, distinct piece colors that read well on the dark board
+const currentTheme = () =>
+  globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches ? DARK : LIGHT
+
+// Soft, distinct piece colors that keep dark label text legible on either board
 const COLORS = [
-  '#22d3ee', '#4ade80', '#38bdf8', '#fbbf24', '#c084fc',
-  '#f472b6', '#a3e635', '#fb923c', '#2dd4bf', '#818cf8',
+  '#8fb3f2', '#86d6a5', '#f2c46d', '#c9a7f0', '#f2a3c4',
+  '#7fd3d0', '#f5a97a', '#b5d77a', '#a7b4f5', '#e8d27a',
 ]
 
 const PADDING = 20        // breathing room around the board
@@ -64,14 +75,15 @@ export function renderPlan(
   canvas.style.width = `${cssW}px`
   canvas.style.height = `${cssH}px`
 
+  const theme = currentTheme()
   const ctx = canvas.getContext('2d')!
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, cssW, cssH)
 
   // Stock background (bare board — what shows through is waste)
-  ctx.fillStyle = THEME.board
+  ctx.fillStyle = theme.board
   ctx.fillRect(PADDING, PADDING, boardW, boardH)
-  ctx.strokeStyle = THEME.border
+  ctx.strokeStyle = theme.border
   ctx.lineWidth = 2
   ctx.strokeRect(PADDING, PADDING, boardW, boardH)
 
@@ -81,16 +93,16 @@ export function renderPlan(
 
     ctx.fillStyle = COLORS[i % COLORS.length] + 'E6'
     ctx.fillRect(b.x, b.y, b.w, b.h)
-    ctx.strokeStyle = THEME.pieceBorder
+    ctx.strokeStyle = theme.pieceBorder
     ctx.lineWidth = 1
     ctx.strokeRect(b.x, b.y, b.w, b.h)
 
-    drawPieceLabel(ctx, b, i + 1, placement)
+    drawPieceLabel(ctx, b, i + 1, placement, theme.pieceText)
   })
 
   // Stock caption below
-  ctx.fillStyle = THEME.label
-  ctx.font = `11px ${THEME.font}`
+  ctx.fillStyle = theme.label
+  ctx.font = `11px ${FONT}`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
   const long = `${fromInches(stock.length, stock.unit)} long`
@@ -125,6 +137,7 @@ function drawPieceLabel(
   b: Box,
   index: number,
   placement: CutPlacement,
+  textColor: string,
 ): void {
   const { cut, rotated } = placement
   const name = rotated ? `${cut.label} (R)` : cut.label
@@ -139,13 +152,13 @@ function drawPieceLabel(
   ctx.save()
   ctx.translate(b.x + b.w / 2, b.y + b.h / 2)
   if (vertical) ctx.rotate(-Math.PI / 2)
-  ctx.fillStyle = THEME.pieceText
+  ctx.fillStyle = textColor
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
   const room = along - TEXT_INSET
   const fits = (text: string, font: number, weight = '') => {
-    ctx.font = `${weight} ${font}px ${THEME.font}`.trim()
+    ctx.font = `${weight} ${font}px ${FONT}`.trim()
     return ctx.measureText(text).width <= room
   }
 
@@ -164,9 +177,9 @@ function drawPieceLabel(
     const preferred = Math.floor(across * 0.32)
     const font = Math.min(bestFont(name, preferred, 'bold'), bestFont(dims, preferred))
     if (font >= MIN_FONT) {
-      ctx.font = `bold ${font}px ${THEME.font}`
+      ctx.font = `bold ${font}px ${FONT}`
       ctx.fillText(name, 0, -font * 0.6)
-      ctx.font = `${font}px ${THEME.font}`
+      ctx.font = `${font}px ${FONT}`
       ctx.fillText(dims, 0, font * 0.6)
       ctx.restore()
       return
@@ -179,7 +192,7 @@ function drawPieceLabel(
   for (const text of [`${name}  ${dims}`, `${name}  ${longSide}`, name, cut.label]) {
     const font = bestFont(text, preferred, 'bold')
     if (font >= MIN_FONT) {
-      ctx.font = `bold ${font}px ${THEME.font}`
+      ctx.font = `bold ${font}px ${FONT}`
       ctx.fillText(text, 0, 0)
       ctx.restore()
       return
@@ -188,7 +201,7 @@ function drawPieceLabel(
 
   // Too small for words — a badge still ties the piece to its cut-list entry.
   if (across >= MIN_FONT && fits(String(index), MIN_FONT, 'bold')) {
-    ctx.font = `bold ${MIN_FONT}px ${THEME.font}`
+    ctx.font = `bold ${MIN_FONT}px ${FONT}`
     ctx.fillText(String(index), 0, 0)
   }
   ctx.restore()

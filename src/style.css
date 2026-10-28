@@ -1,16 +1,38 @@
 :root {
-  --bg:       #0d0f14;
-  --bg2:      #141720;
-  --bg3:      #1a1e2a;
-  --border:   #252a38;
-  --green:    #4ade80;
-  --cyan:     #22d3ee;
-  --text:     #c8d3e0;
-  --muted:    #5a6478;
-  --accent:   var(--cyan);
-  --danger:   #f87171;
-  --warn:     #fbbf24;
-  --font:     'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color-scheme: light dark;
+  --bg:       #fbfbfa;
+  --surface:  #ffffff;
+  --field:    #fbfbfa;
+  --border:   #e4e4e0;
+  --text:     #1f2328;
+  --heading:  #0f1215;
+  --muted:    #626a75;
+  --accent:   #2a5bb8;
+  --danger:   #b42318;
+  --warn:     #92600a;
+  --warn-bg:  rgba(202, 138, 4, 0.08);
+  --warn-border: rgba(202, 138, 4, 0.3);
+  --nav-bg:   rgba(251,251,250,.85);
+  --font:     'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:     'JetBrains Mono', ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:      #121417;
+    --surface: #1a1d21;
+    --field:   #121417;
+    --border:  #2a2e34;
+    --text:    #d9dde3;
+    --heading: #f4f5f7;
+    --muted:   #9199a4;
+    --accent:  #84a9f0;
+    --danger:  #f87171;
+    --warn:    #fbbf24;
+    --warn-bg: rgba(251, 191, 36, 0.08);
+    --warn-border: rgba(251, 191, 36, 0.25);
+    --nav-bg:  rgba(18,20,23,.85);
+  }
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -20,36 +42,73 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding: 1rem;
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
+
+a { color: var(--accent); text-decoration: none; }
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(1.25rem, 5vw, 3rem);
+  background: var(--nav-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--heading);
+  letter-spacing: .02em;
+}
+.nav-logo span { color: var(--accent); }
 
 #app {
   max-width: 800px;
   margin: 0 auto;
+  padding: 2.5rem 1rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-header h1 { font-size: 1.75rem; color: #fff; font-weight: 700; }
-header h1::before { content: '~/ '; color: var(--accent); }
-header p  { color: var(--muted); margin-top: 0.35rem; }
+header h1 {
+  font-size: 2rem;
+  color: var(--heading);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.15;
+}
+header p  { color: var(--muted); margin-top: 0.4rem; }
 
 .card {
-  background: var(--bg2);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.card h2 { font-size: 1rem; color: var(--green); font-weight: 600; }
-.card h2::before { content: '# '; color: var(--muted); }
+.card h2 {
+  font-size: .75rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
 
-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
 
 .input-row {
   display: flex;
@@ -59,34 +118,31 @@ label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
 }
 
 input[type="text"],
-input[type="number"] {
-  background: var(--bg3);
+input[type="number"],
+select {
+  background: var(--field);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text);
-  padding: 0.5rem 0.6rem;
+  padding: 0.5rem 0.65rem;
   font-size: 16px; /* 16px avoids iOS auto-zoom on focus */
   font-family: var(--font);
+}
+
+input[type="text"],
+input[type="number"] {
   flex: 1 1 120px;
   min-width: 0;
 }
+
+select { cursor: pointer; }
 
 input::placeholder { color: var(--muted); }
 
 input:focus, select:focus {
   outline: none;
   border-color: var(--accent);
-}
-
-select {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  padding: 0.5rem 0.6rem;
-  font-size: 16px; /* avoids iOS auto-zoom */
-  font-family: var(--font);
-  cursor: pointer;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 /* Label fields take their own line; the add button fills the row's end */
@@ -94,10 +150,121 @@ select {
 .input-row input.qty { flex: 0 0 70px; }
 .input-row button { flex: 0 0 auto; }
 
+button {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--heading);
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: var(--font);
+  transition: border-color 0.15s, opacity 0.15s;
+}
+button:hover { border-color: var(--muted); }
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.65rem 2rem;
+}
+button.primary:hover { opacity: .88; }
+
+.remove-btn {
+  border: none;
+  color: var(--muted);
+  padding: 0.2rem 0.45rem;
+  font-size: 0.85rem;
+}
+.remove-btn:hover { color: var(--danger); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+th, td { padding: 0.45rem 0.6rem; text-align: left; border-bottom: 1px solid var(--border); }
+th {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.optimize-row { display: flex; justify-content: center; }
+
+#results { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.plan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.plan-card h3 { font-size: 0.95rem; color: var(--heading); font-weight: 600; }
+.plan-card canvas { display: block; max-width: 100%; height: auto; }
+
+.cut-list { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+.cut-list li {
+  font-size: 0.85rem;
+  color: var(--text);
+  padding: 0.4rem 0.65rem;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.summary { color: var(--heading); font-weight: 600; }
+
+.share-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.share-label { color: var(--muted); font-size: 0.9rem; }
+.share-bar button { font-size: 0.85rem; }
+
+.app-footer {
+  text-align: center;
+  padding-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.app-footer a {
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.app-footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+.hint { color: var(--muted); text-align: center; padding: 2rem; }
+.warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+/* Explains why an Add did nothing, instead of the button seeming dead */
+.field-error { color: var(--danger); font-size: 0.85rem; }
+.field-error:empty { display: none; }
+
 /* Phone / small-tablet layout */
 @media (max-width: 600px) {
-  body { padding: 0.75rem; }
-  header h1 { font-size: 1.4rem; }
+  #app { padding: 1.5rem 0.75rem 1.5rem; }
+  header h1 { font-size: 1.6rem; }
   .card { padding: 1rem; }
   .input-row input, .input-row select { flex: 1 1 calc(50% - 0.5rem); }
   .input-row button { flex: 1 1 100%; padding: 0.6rem; }
@@ -107,110 +274,3 @@ select {
   .share-bar button { flex: 1 1 calc(50% - 0.5rem); }
   .share-label { flex: 1 1 100%; }
 }
-
-button {
-  background: transparent;
-  border: 1px solid var(--accent);
-  border-radius: 4px;
-  color: var(--accent);
-  padding: 0.4rem 0.9rem;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-family: var(--font);
-  transition: background 0.15s, color 0.15s;
-}
-button:hover { background: var(--accent); color: var(--bg); }
-
-button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bg);
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 0.6rem 2rem;
-}
-button.primary:hover { background: var(--green); border-color: var(--green); }
-
-.remove-btn {
-  background: transparent;
-  border: none;
-  color: var(--danger);
-  padding: 0.2rem 0.4rem;
-  font-size: 0.85rem;
-}
-.remove-btn:hover { color: var(--bg); background: var(--danger); border-radius: 3px; }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-th, td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--border); }
-th { color: var(--accent); font-weight: 600; }
-
-.optimize-row { display: flex; justify-content: center; }
-
-#results { display: flex; flex-direction: column; gap: 1.5rem; }
-
-.plan-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  overflow-x: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.plan-card h3 { font-size: 0.95rem; color: var(--accent); font-weight: 600; }
-.plan-card canvas { display: block; max-width: 100%; height: auto; }
-
-.cut-list { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
-.cut-list li {
-  font-size: 0.8rem;
-  color: var(--text);
-  padding: 0.35rem 0.6rem;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-}
-.cut-list li::before { content: '› '; color: var(--green); }
-
-.summary { color: var(--accent); font-weight: 600; }
-
-.share-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-.share-label { color: var(--muted); font-size: 0.85rem; }
-.share-bar button { font-size: 0.8rem; }
-
-.app-footer {
-  text-align: center;
-  padding-top: 0.5rem;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-.app-footer a {
-  color: var(--muted);
-  text-decoration: none;
-  border-bottom: 1px dotted var(--border);
-  padding-bottom: 1px;
-  transition: color 0.15s, border-color 0.15s;
-}
-.app-footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-
-.hint { color: var(--muted); text-align: center; padding: 2rem; }
-.warn {
-  color: var(--warn);
-  background: rgba(251, 191, 36, 0.08);
-  border: 1px solid rgba(251, 191, 36, 0.25);
-  border-radius: 4px;
-  padding: 0.75rem 1rem;
-}
-
-/* Explains why an Add did nothing, instead of the button seeming dead */
-.field-error { color: var(--danger); font-size: 0.8rem; }
-.field-error:empty { display: none; }

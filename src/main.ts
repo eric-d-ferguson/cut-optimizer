@@ -208,6 +208,11 @@ document.addEventListener('click', (e) => {
 
 document.getElementById('optimize-btn')!.addEventListener('click', runOptimizer)
 
+// Diagrams are drawn with the theme's colors baked in, so redraw on a switch.
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (document.querySelector('.plan-card')) runOptimizer()
+})
+
 // Wire the footer link to a GitHub new-issue form with a light template.
 // Falls back to the plain issues page (set in the HTML) if JS doesn't run.
 const ISSUE_BODY = [
